@@ -131,6 +131,7 @@ export const DataProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    console.log('[DataContext] Using API URL:', API_BASE_URL);
     fetchAllData();
   }, []);
 

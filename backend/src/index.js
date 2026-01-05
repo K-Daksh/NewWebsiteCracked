@@ -31,7 +31,7 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-console.log()
+console.log(`Backend module loaded. Environment: ${process.env.NODE_ENV}`);
 
 // Middleware
 app.use(cors(corsOptions));
