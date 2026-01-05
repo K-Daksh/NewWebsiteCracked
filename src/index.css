@@ -37,8 +37,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #030303;
   color: #e2e8f0;
-  overflow-x: hidden;
 }
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

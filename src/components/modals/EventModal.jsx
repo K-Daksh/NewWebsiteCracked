@@ -69,36 +69,43 @@ export const EventModal = ({ event, onClose }) => {
                             {event.type}
                             </span>
                             <span className="text-white/40 text-xs font-mono tracking-widest uppercase flex items-center gap-2">
-                            <Clock className="w-3 h-3" /> {event.date}
+                            <Clock className="w-3 h-3" /> {event.date ? new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBA'}
                             </span>
                         </div>
                         <h2 className="text-3xl md:text-5xl font-light tracking-tighter text-white leading-none">{event.title}</h2>
                     </div>
                     
-                    {event.type === 'Upcoming' && (
+                    {/* Register button only for Ongoing events */}
+                    {event.type === 'Ongoing' && (
                         <div className="shrink-0 mt-4 md:mt-0">
-                            <LiquidButton className="px-8 py-4 text-white font-semibold" rounded="rounded-2xl">
-                                Register Now
+                            <LiquidButton 
+                              onClick={() => event.registrationUrl ? window.open(event.registrationUrl, '_blank') : null}
+                              className={`px-6 py-3 text-white font-semibold ${!event.registrationUrl ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              rounded="rounded-xl"
+                            >
+                                {event.registrationUrl ? 'Register Now' : 'Registration Link Not Set'}
                             </LiquidButton>
                         </div>
                     )}
                 </div>
                 
                 {/* Details & Description */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                     <div className="md:col-span-2 prose prose-invert prose-lg max-w-none text-white/70 font-light leading-relaxed">
                         <p>{event.description}</p>
-                        <p>This event is crafted to provide deep insights and practical knowledge. Join us to connect with industry leaders, learn cutting-edge technologies, and be part of a community that is shaping the future of digital innovation.</p>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
                     </div>
-                    <div className="space-y-6">
-                        <LiquidCard className="p-6" rounded="rounded-2xl">
-                            <h4 className="text-white font-medium mb-4 flex items-center gap-2"><MapPin className="w-4 h-4 text-purple-400"/> Location</h4>
-                            <p className="text-white/50 text-sm">Tech Park Auditorium,<br/>Indore, MP</p>
+                    <div className="space-y-3">
+                        <LiquidCard className="p-4" rounded="rounded-xl">
+                            <h4 className="text-white font-medium text-sm mb-2 flex items-center gap-2"><MapPin className="w-3.5 h-3.5 text-purple-400"/> Location</h4>
+                            <p className="text-white/50 text-sm">{event.location || 'TBA'}</p>
                         </LiquidCard>
-                        <LiquidCard className="p-6" rounded="rounded-2xl">
-                            <h4 className="text-white font-medium mb-4 flex items-center gap-2"><Users className="w-4 h-4 text-purple-400"/> Capacity</h4>
-                            <p className="text-white/50 text-sm">250+ Attendees<br/>Limited Seats</p>
+                        <LiquidCard className="p-4" rounded="rounded-xl">
+                            <h4 className="text-white font-medium text-sm mb-2 flex items-center gap-2"><Users className="w-3.5 h-3.5 text-purple-400"/> Capacity</h4>
+                            <p className="text-white/50 text-sm">{event.capacity || 'TBA'}</p>
+                        </LiquidCard>
+                        <LiquidCard className="p-4" rounded="rounded-xl">
+                            <h4 className="text-white font-medium text-sm mb-2 flex items-center gap-2"><Clock className="w-3.5 h-3.5 text-purple-400"/> Date</h4>
+                            <p className="text-white/50 text-sm">{event.date ? new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBA'}</p>
                         </LiquidCard>
                     </div>
                 </div>

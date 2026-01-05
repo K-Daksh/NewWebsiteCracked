@@ -6,14 +6,20 @@ import { LiquidButton } from '../components/common/LiquidButton';
 import { TiltCard } from '../components/common/TiltCard';
 import CurvedLoop from '../components/common/CurvedLoop';
 import { TestimonialSlider } from '../components/sections/TestimonialSlider';
+import { useData } from '../context/DataContext';
 
 export const AboutPage = () => {
-  const milestones = [
-    { year: "Genesis", title: "Community Founded", desc: "Started with 5 developers in a coffee shop." },
-    { year: "Growth", title: "Cyber Police MP Partnership", desc: "Official collaboration to train cadets in cybersecurity basics." },
-    { year: "Expansion", title: "7+ College Partners", desc: "Established student chapters across the state." },
-    { year: "Now", title: "3+ Strategic Sponsors", desc: "Fueling the next generation of hackathons." },
-  ];
+  const { milestones: contextMilestones } = useData();
+  
+  // Use milestones from context or fallback to static
+  const milestones = contextMilestones.length > 0 
+    ? contextMilestones.map(m => ({ year: m.year, title: m.title, desc: m.description }))
+    : [
+        { year: "Genesis", title: "Community Founded", desc: "Started with 5 developers in a coffee shop." },
+        { year: "Growth", title: "Cyber Police MP Partnership", desc: "Official collaboration to train cadets in cybersecurity basics." },
+        { year: "Expansion", title: "7+ College Partners", desc: "Established student chapters across the state." },
+        { year: "Now", title: "3+ Strategic Sponsors", desc: "Fueling the next generation of hackathons." },
+      ];
 
   const values = [
       {
@@ -156,15 +162,15 @@ export const AboutPage = () => {
           {milestones.map((item, idx) => (
             <motion.div 
               key={idx}
-              initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ margin: "-50px" }}
+              initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }}
               className={`flex flex-col md:flex-row items-center gap-8 md:gap-12 ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}
             >
               <div className="flex-1 w-full relative group">
                 <TiltCard className="p-6 md:p-10 ml-6 md:ml-0 h-full border border-white/5 group-hover:border-purple-500/30 transition-colors duration-500" rounded="rounded-2xl" scaleOnHover={1.02} rotateAmplitude={5}>
-                  <div className="absolute top-4 right-4 md:top-6 md:right-6 bg-white/5 backdrop-blur-md px-2 py-1 md:px-3 md:py-1 rounded-full border border-white/10 text-[9px] md:text-xs text-purple-300 font-mono tracking-widest uppercase">
+                  <div className="absolute top-4 right-4 md:top-6 md:right-6 bg-white/5 backdrop-blur-md px-2 py-1 md:px-3 md:py-1 rounded-full border border-white/10 text-[9px] md:text-xs text-purple-300 font-mono tracking-widest uppercase max-w-[120px] text-center">
                     {item.year}
                   </div>
-                  <h3 className="text-lg md:text-3xl font-bold text-white mb-2 md:mb-4 mt-1 pr-16">{item.title}</h3>
+                  <h3 className="text-lg md:text-3xl font-bold text-white mb-2 md:mb-4 mt-1 pr-24 md:pr-32">{item.title}</h3>
                   <p className="text-white/60 text-xs md:text-base leading-relaxed">{item.desc}</p>
                 </TiltCard>
                 

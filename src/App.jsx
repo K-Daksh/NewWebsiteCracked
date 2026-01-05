@@ -1,23 +1,34 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense, lazy } from 'react';
 import { motion, AnimatePresence, useMotionValue, useMotionTemplate } from 'framer-motion';
 import { Navigation } from './components/layout/Navigation';
 import { Footer } from './components/layout/Footer';
 import { ScrollToTop } from './components/common/ScrollToTop';
 import { EventModal } from './components/modals/EventModal';
-import { HomePage } from './pages/HomePage';
-import { EventsPage } from './pages/EventsPage';
-import { AboutPage } from './pages/AboutPage';
-import { HirePage } from './pages/HirePage';
+// Lazy Load Pages
+const HomePage = lazy(() => import('./pages/HomePage').then(module => ({ default: module.HomePage })));
+const EventsPage = lazy(() => import('./pages/EventsPage').then(module => ({ default: module.EventsPage })));
+const AboutPage = lazy(() => import('./pages/AboutPage').then(module => ({ default: module.AboutPage })));
+const HirePage = lazy(() => import('./pages/HirePage').then(module => ({ default: module.HirePage })));
 import DarkVeil from './components/backgrounds/DarkVeil';
 import Cursor from './components/common/Cursor';
-import CircularText from './components/common/CircularText';
+import BrandedSpinner from './components/common/BrandedSpinner';
 
 import { useWindowDragScroll } from './hooks/useWindowDragScroll';
+import { DataProvider, useData } from './context/DataContext';
+import { AdminAuthProvider, useAdminAuth } from './admin/context/AdminAuthContext';
+import AdminLogin from './admin/pages/AdminLogin';
+import AdminDashboard from './admin/pages/AdminDashboard';
 
-const CrackedDigitalApp = () => {
+// Inner app component that uses the data context
+const AppContent = () => {
   const [activePage, setActivePage] = useState('home');
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { loading: dataLoading } = useData();
+  const [minLoadingComplete, setMinLoadingComplete] = useState(false);
+  const { isAuthenticated: isAdminAuthenticated, loading: adminLoading } = useAdminAuth();
+  
+  // Show loading screen until both data is fetched AND minimum time has passed
+  const isLoading = (dataLoading || !minLoadingComplete) && activePage !== 'admin';
   
   // Enable drag-to-scroll on desktop (mimic mobile feel)
   useWindowDragScroll(true);
@@ -27,12 +38,23 @@ const CrackedDigitalApp = () => {
   const rafRef = useRef(null);
 
   useEffect(() => {
-    // Simulate initial loading sequence
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2200);
+    let timer;
+
+    if (!dataLoading) {
+      // If data is ready (cached or fetched), finish loading quickly
+      // Small delay (100ms) prevents flickering and ensures smooth transition
+      timer = setTimeout(() => {
+        setMinLoadingComplete(true);
+      }, 100);
+    } else {
+      // If data is fetching, ensure minimum branding time
+      timer = setTimeout(() => {
+        setMinLoadingComplete(true);
+      }, 2200);
+    }
+
     return () => clearTimeout(timer);
-  }, []);
+  }, [dataLoading]);
 
   // Smooth scroll to top when changing pages
   useEffect(() => {
@@ -52,6 +74,32 @@ const CrackedDigitalApp = () => {
 
   const backgroundGradient = useMotionTemplate`radial-gradient(400px circle at ${mouseX}px ${mouseY}px, rgba(255,255,255,0.03), transparent 60%)`;
 
+  // Admin Pages - Shown when activePage is 'admin'
+  if (activePage === 'admin') {
+    if (adminLoading) {
+      return (
+        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      );
+    }
+    
+    if (!isAdminAuthenticated) {
+      return (
+        <div className="min-h-screen bg-[#0a0a0a]">
+          <AdminLogin onBack={() => setActivePage('home')} />
+        </div>
+      );
+    }
+    
+    return (
+      <div className="min-h-screen bg-[#0a0a0a]">
+        <AdminDashboard onBack={() => setActivePage('home')} />
+      </div>
+    );
+  }
+
+  // Main Website Content
   return (
     <div 
       className="min-h-screen w-full bg-[#030303] text-slate-200 font-sans selection:bg-purple-500/30 overflow-x-hidden relative cursor-none"
@@ -86,11 +134,7 @@ const CrackedDigitalApp = () => {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] } }}
           >
-             <CircularText 
-                text="CRACKED ✦ DIGITAL ✦ " 
-                spinDuration={5} 
-                className="scale-125 md:scale-150"
-             />
+             <BrandedSpinner size={60} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -117,55 +161,57 @@ const CrackedDigitalApp = () => {
       {/* 3. Main Content Area */}
       {/* 3. Main Content Area */}
       <main className="relative z-10 pt-28 sm:pt-32 min-h-screen">
-        <AnimatePresence mode="wait">
-          {activePage === 'home' && (
-            <motion.div
-              key="home"
-              initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <HomePage onEventSelect={setSelectedEvent} />
-            </motion.div>
-          )}
+        <Suspense fallback={null}>
+          <AnimatePresence mode="wait">
+            {activePage === 'home' && (
+              <motion.div
+                key="home"
+                initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <HomePage onEventSelect={setSelectedEvent} />
+              </motion.div>
+            )}
 
-          {activePage === 'events' && (
-             <motion.div
-             key="events"
-             initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
-             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-             exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-           >
-             <EventsPage onEventSelect={setSelectedEvent} />
-           </motion.div>
-          )}
+            {activePage === 'events' && (
+               <motion.div
+               key="events"
+               initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
+               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+               exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
+               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+             >
+               <EventsPage onEventSelect={setSelectedEvent} />
+             </motion.div>
+            )}
 
-          {activePage === 'about' && (
-            <motion.div
-              key="about"
-              initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <AboutPage />
-            </motion.div>
-          )}
+            {activePage === 'about' && (
+              <motion.div
+                key="about"
+                initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <AboutPage />
+              </motion.div>
+            )}
 
-          {activePage === 'hire' && (
-            <motion.div
-              key="hire"
-              initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <HirePage />
-            </motion.div>
-          )}
-        </AnimatePresence>
+            {activePage === 'hire' && (
+              <motion.div
+                key="hire"
+                initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <HirePage />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Suspense>
       </main>
 
       {/* 4. Global Modal Layer */}
@@ -189,6 +235,17 @@ const CrackedDigitalApp = () => {
         </filter>
       </svg>
     </div>
+  );
+};
+
+// Main App component with DataProvider and AdminAuthProvider wrapper
+const CrackedDigitalApp = () => {
+  return (
+    <DataProvider>
+      <AdminAuthProvider>
+        <AppContent />
+      </AdminAuthProvider>
+    </DataProvider>
   );
 };
 

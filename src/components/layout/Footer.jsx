@@ -101,9 +101,16 @@ export const Footer = ({ setActivePage }) => {
                 &copy; {currentYear} Cracked Digital. All rights reserved.
             </p>
             <div className="flex gap-6">
+                <button 
+                  onClick={() => setActivePage('admin')} 
+                  className="text-white/30 hover:text-white text-xs transition-colors"
+                >
+                  Admin
+                </button>
                 <a href="#" className="text-white/30 hover:text-white text-xs transition-colors">Privacy Policy</a>
                 <a href="#" className="text-white/30 hover:text-white text-xs transition-colors">Terms of Service</a>
                 <a href="#" className="text-white/30 hover:text-white text-xs transition-colors">Cookie Policy</a>
+                
             </div>
         </div>
       </div>

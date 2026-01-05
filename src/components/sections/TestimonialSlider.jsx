@@ -3,37 +3,34 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 import { LiquidCard } from '../common/LiquidCard';
 import { LiquidButton } from '../common/LiquidButton';
+import { useData } from '../../context/DataContext';
 
 // Liquid Glass Testimonial Slider
 export const TestimonialSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { testimonials: contextTestimonials } = useData();
   
-  const testimonials = [
-    {
-      id: 1,
-      name: "Priya Sharma",
-      role: "Senior Frontend Developer",
-      company: "TechNova",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200",
-      text: "Cracked Digital transformed my career trajectory. The networking opportunities here are unmatched in Central India. I found my co-founder at the last summit."
-    },
-    {
-      id: 2,
-      name: "Rahul Verma",
-      role: "CTO",
-      company: "InnovateX",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
-      text: "The quality of talent we hired through Cracked is exceptional. They aren't just coders; they are problem solvers. The 4% flat fee is just the icing on the cake."
-    },
-    {
-      id: 3,
-      name: "Ananya Singh",
-      role: "Product Designer",
-      company: "Freelance",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200",
-      text: "Finally, a community that understands design as much as code. The events are curated perfectly, and the mentorship I received was invaluable."
-    }
-  ];
+  // Use testimonials from context or fallback to static
+  const testimonials = contextTestimonials.length > 0 
+    ? contextTestimonials 
+    : [
+        {
+          id: 1,
+          name: "Priya Sharma",
+          role: "Senior Frontend Developer",
+          company: "TechNova",
+          image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200",
+          text: "Cracked Digital transformed my career trajectory."
+        },
+        {
+          id: 2,
+          name: "Rahul Verma",
+          role: "CTO",
+          company: "InnovateX",
+          image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+          text: "The quality of talent we hired through Cracked is exceptional."
+        },
+      ];
 
   const nextTestimonial = () => {
     setCurrentIndex((prev) => (prev + 1) % testimonials.length);

@@ -3,12 +3,10 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Calendar, ArrowUpRight } from 'lucide-react';
 import { LiquidCard } from '../components/common/LiquidCard';
 import { LiquidButton } from '../components/common/LiquidButton';
-import { EVENTS_DATA } from '../data/constants';
+import { useData } from '../context/DataContext';
 
 export const EventsPage = ({ onEventSelect }) => {
-    const ongoingEvents = EVENTS_DATA.filter(evt => evt.type === 'Ongoing');
-    const upcomingEvents = EVENTS_DATA.filter(evt => evt.type === 'Upcoming');
-    const pastEvents = EVENTS_DATA.filter(evt => evt.type === 'Past');
+    const { events, ongoingEvents, upcomingEvents, pastEvents } = useData();
 
     const EventCard = ({ evt, isOngoing = false }) => (
         <motion.div 
@@ -51,7 +49,9 @@ export const EventsPage = ({ onEventSelect }) => {
                         }`}>
                             {evt.type}
                         </span>
-                        <span className="text-white/50 text-[9px] sm:text-[10px] font-mono uppercase tracking-wider">{evt.date}</span>
+                        <span className="text-white/50 text-[9px] sm:text-[10px] font-mono uppercase tracking-wider">
+                            {evt.date ? new Date(evt.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBA'}
+                        </span>
                     </div>
                     
                     <h4 className={`font-medium text-white mb-2 tracking-tight leading-none group-hover:text-purple-200 transition-colors duration-300 text-lg sm:text-2xl`}>
@@ -77,19 +77,29 @@ export const EventsPage = ({ onEventSelect }) => {
 
             <div className="space-y-20">
                 {/* 1. Ongoing Events */}
-                {ongoingEvents.length > 0 && (
-                    <section className="space-y-6">
-                        <div className="flex items-center gap-3">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]"></span>
-                            <h3 className="text-xl md:text-2xl font-medium text-white tracking-tight">Ongoing Events</h3>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
-                            {ongoingEvents.map(evt => (
+                <section className="space-y-6">
+                    <div className="flex items-center gap-3">
+                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]"></span>
+                        <h3 className="text-xl md:text-2xl font-medium text-white tracking-tight">Ongoing Events</h3>
+                        {ongoingEvents.length > 0 && <span className="text-green-400/70 text-sm ml-2">(Registration open)</span>}
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+                        {ongoingEvents.length > 0 ? (
+                            ongoingEvents.map(evt => (
                                 <EventCard key={evt.id} evt={evt} isOngoing={true} />
-                            ))}
-                        </div>
-                    </section>
-                )}
+                            ))
+                        ) : (
+                            <div>
+                                <div className="aspect-[4/5] bg-white/5 border border-white/10 rounded-3xl flex items-center justify-center backdrop-blur-sm">
+                                    <div className="text-center p-8">
+                                        <p className="text-white/50 text-lg md:text-xl font-light tracking-tight">No ongoing event.</p>
+                                        <p className="text-white/30 text-sm mt-2">Stay tuned!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </section>
 
                 {/* 2. Upcoming Events */}
                 {upcomingEvents.length > 0 && (

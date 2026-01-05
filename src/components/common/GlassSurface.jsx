@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef, useState, useId } from 'react';
+import { useEffect, useRef, useState, useId, memo } from 'react';
 
 const useDarkMode = () => {
   const [isDark, setIsDark] = useState(true); // Default to dark for this site
@@ -316,4 +316,4 @@ const GlassSurface = ({
   );
 };
 
-export default GlassSurface;
+export default memo(GlassSurface);

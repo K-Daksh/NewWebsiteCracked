@@ -1,63 +1,79 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Sparkles, TrendingUp, Users, Globe, Star, ChevronDown, Trophy, Terminal, Map, Zap } from 'lucide-react';
+import { ArrowRight, Sparkles, TrendingUp, Users, Globe, Star, ChevronDown, Trophy, Terminal, Map, Zap, Award, Target } from 'lucide-react';
 import { LiquidCard } from '../components/common/LiquidCard';
 import { LiquidButton } from '../components/common/LiquidButton';
 import { TiltCard } from '../components/common/TiltCard';
 import CountUp from '../components/common/CountUp';
 import ShinyText from '../components/common/ShinyText';
+import { useData } from '../context/DataContext';
+
+// Icon mapping for dynamic stats
+const ICON_MAP = {
+  TrendingUp, Users, Globe, Star, Award, Target, Trophy, Zap
+};
+
+// Static Data - Extracted to prevent re-creation on render
+const FALLBACK_STATS = [
+  { label: "Growth (100 days)", value: 700, suffix: "%", icon: TrendingUp },
+  { label: "Active Members", value: 600, suffix: "+", icon: Users },
+  { label: "Organic Reach", value: 20, suffix: "k+", icon: Globe },
+  { label: "Core Members", value: 15, suffix: "+", icon: Star },
+];
+
+const FEATURES_DATA = [
+  { 
+      title: "Flagship Events", 
+      desc: "Experience Central India's premier tech showcases, from high-octane hackathons to exclusive networking summits.", 
+      icon: Trophy,
+      color: "text-purple-400",
+      glow: "rgba(168, 85, 247, 0.4)"
+  },
+  { 
+      title: "Technical Resources", 
+      desc: "Access comprehensive tutorials, code examples, and best practices from industry experts.", 
+      icon: Terminal,
+      color: "text-purple-400",
+      glow: "rgba(168, 85, 247, 0.4)"
+  },
+  { 
+      title: "Expert Community", 
+      desc: "Connect with experienced developers, get mentorship, and collaborate on projects.", 
+      icon: Users,
+      color: "text-purple-400",
+      glow: "rgba(168, 85, 247, 0.4)"
+  },
+  { 
+      title: "Learning Paths", 
+      desc: "Structured learning journeys designed to take you from beginner to advanced levels.", 
+      icon: Map,
+      color: "text-purple-400",
+      glow: "rgba(168, 85, 247, 0.4)"
+  }
+];
+
+const FALLBACK_FAQS = [
+  { q: "What is Cracked Digital?", a: "We are Central India's premier tech community connecting talent with opportunity through high-impact events, hackathons, and mentorship." },
+  { q: "How can I join the community?", a: "It's simple. Click the 'Join Now' button to enter our exclusive WhatsApp network where all the action happens." },
+  { q: "Is membership free?", a: "Yes, joining Cracked Digital as a community member is completely free for students, developers, and designers." },
+];
 
 export const HomePage = ({ onEventSelect }) => {
-  const stats = [
-    { label: "Growth (100 days)", value: 700, suffix: "%", icon: TrendingUp },
-    { label: "Active Members", value: 600, suffix: "+", icon: Users },
-    { label: "Organic Reach", value: 20, suffix: "k+", icon: Globe },
-    { label: "Core Members", value: 15, suffix: "+", icon: Star },
-  ];
+  const { stats: contextStats, faqs: contextFaqs } = useData();
+  
+  // Map stats from context with proper icons
+  const stats = contextStats.length > 0 
+    ? contextStats.map(stat => ({
+        ...stat,
+        icon: ICON_MAP[stat.icon] || TrendingUp,
+        value: stat.numericValue || parseInt(stat.value) || 0,
+      }))
+    : FALLBACK_STATS;
 
-  const features = [
-    { 
-        title: "Flagship Events", 
-        desc: "Experience Central India's premier tech showcases, from high-octane hackathons to exclusive networking summits.", 
-        icon: Trophy,
-        color: "text-purple-400",
-        glow: "rgba(168, 85, 247, 0.4)"
-    },
-    { 
-        title: "Technical Resources", 
-        desc: "Access comprehensive tutorials, code examples, and best practices from industry experts.", 
-        icon: Terminal,
-        color: "text-purple-400",
-        glow: "rgba(168, 85, 247, 0.4)"
-    },
-    { 
-        title: "Expert Community", 
-        desc: "Connect with experienced developers, get mentorship, and collaborate on projects.", 
-        icon: Users,
-        color: "text-purple-400",
-        glow: "rgba(168, 85, 247, 0.4)"
-    },
-    { 
-        title: "Learning Paths", 
-        desc: "Structured learning journeys designed to take you from beginner to advanced levels.", 
-        icon: Map,
-        color: "text-purple-400",
-        glow: "rgba(168, 85, 247, 0.4)"
-    }
-  ];
-
-  const faqs = [
-    { q: "What is Cracked Digital?", a: "We are Central India's premier tech community connecting talent with opportunity through high-impact events, hackathons, and mentorship." },
-    { q: "How can I join the community?", a: "It's simple. Click the 'Join Now' button to enter our exclusive WhatsApp network where all the action happens." },
-    { q: "Is membership free?", a: "Yes, joining Cracked Digital as a community member is completely free for students, developers, and designers." },
-    { q: "Do you offer job placements?", a: "We bridge the gap between talent and recruiters. Our 'Hire' portal helps top performers get placed with leading tech companies." },
-    { q: "Who organizes these events?", a: "Events are managed by our Core Team of industry experts, senior developers, and passionate community leaders." },
-    { q: "Can I become a Core Team member?", a: "We open recruitment drives periodically. Keep an eye on our community announcements if you want to lead." },
-    { q: "Are events beginner-friendly?", a: "Absolutely. From 'Hello World' workshops to advanced cybersecurity summits, we have something for every skill level." },
-    { q: "How do I sponsor an event?", a: "We love partners! Reach out through our 'Hire' page or contact us directly to discuss sponsorship packages." },
-    { q: "Is this community only for coders?", a: "While code is our core, we welcome UI/UX designers, product managers, and founders. Tech needs everyone." },
-    { q: "Where are you located?", a: "Our roots are in Indore, Madhya Pradesh, but we operate as a global-first digital collective." }
-  ];
+  // Use FAQs from context or fallback to static
+  const faqs = contextFaqs.length > 0 
+    ? contextFaqs.map(f => ({ q: f.question, a: f.answer }))
+    : FALLBACK_FAQS;
 
   // Accordion State
   const [activeFaq, setActiveFaq] = useState(null);
@@ -156,7 +172,7 @@ export const HomePage = ({ onEventSelect }) => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 max-w-7xl mx-auto">
-          {features.map((feature, idx) => (
+          {FEATURES_DATA.map((feature, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 20 }}

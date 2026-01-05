@@ -1,0 +1,26 @@
+{
+  "name": "cracked-digital-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Cracked Digital website",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "seed": "node src/scripts/seed.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "firebase-admin": "^12.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {},
+  "keywords": ["cracked-digital", "backend", "firebase", "api"],
+  "author": "Cracked Digital",
+  "license": "MIT"
+}
