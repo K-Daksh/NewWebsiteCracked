@@ -31,18 +31,20 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
+console.log()
+
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging (development)
-if (process.env.NODE_ENV !== 'production') {
-    app.use((req, res, next) => {
-        console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
-        next();
-    });
-}
+// Request logging (development & production URL check)
+app.use((req, res, next) => {
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.headers.host;
+    console.log(`[Backend Access] Request URL: ${protocol}://${host}${req.originalUrl}`);
+    next();
+});
 
 // Health check
 app.get('/api/health', (req, res) => {
