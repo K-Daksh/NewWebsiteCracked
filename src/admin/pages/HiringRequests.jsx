@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Clock, CheckCircle, XCircle, Trash2, Building, AlertCircle } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { getHiringRequests, updateHiringRequestStatus, deleteHiringRequest } from '../api';
 
 const HiringRequests = () => {
   const { token } = useAdminAuth();
@@ -18,19 +19,8 @@ const HiringRequests = () => {
   }, [token]);
 
   const fetchRequests = async () => {
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-    
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/hiring`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch requests');
-      const data = await response.json();
+      const data = await getHiringRequests();
       setRequests(data);
     } catch (err) {
       setError(err.message);
@@ -41,16 +31,8 @@ const HiringRequests = () => {
 
   const handleStatusUpdate = async (id, newStatus) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/hiring/${id}/status`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-
-      if (response.ok) {
+      const response = await updateHiringRequestStatus(id, newStatus);
+      if (response.success) {
         setRequests(requests.map(req => req.id === id ? { ...req, status: newStatus } : req));
       }
     } catch (err) {
@@ -61,13 +43,8 @@ const HiringRequests = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this request?')) return;
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/hiring/${id}`, {
-            method: 'DELETE',
-            headers: {
-            'Authorization': `Bearer ${token}`
-            }
-        });
-        if (response.ok) {
+        const response = await deleteHiringRequest(id);
+        if (response.success) {
             setRequests(requests.filter(req => req.id !== id));
         }
     } catch (err) {

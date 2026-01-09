@@ -119,3 +119,8 @@ export const uploadImages = async (files) => {
 
 export const deleteImage = (filename) => apiCall(`/upload/${filename}`, { method: 'DELETE' });
 export const listImages = () => apiCall('/upload/list');
+
+// Hiring Requests
+export const getHiringRequests = () => apiCall('/hiring');
+export const updateHiringRequestStatus = (id, status) => apiCall(`/hiring/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
+export const deleteHiringRequest = (id) => apiCall(`/hiring/${id}`, { method: 'DELETE' });

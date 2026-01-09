@@ -23,7 +23,10 @@ export const HirePage = () => {
     setIsSubmitting(true);
     
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/hiring`, {
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 
+            (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api');
+            
+        const response = await fetch(`${API_BASE_URL}/hiring`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
