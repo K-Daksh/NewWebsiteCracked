@@ -13,13 +13,11 @@ const META_KEY = 'cracked_digital_meta';
 export const getCache = () => {
     try {
         if (typeof window === 'undefined' || !window.localStorage) {
-            console.warn('[Cache] localStorage not available');
             return null;
         }
 
         const cacheStr = localStorage.getItem(CACHE_KEY);
         if (!cacheStr) {
-            console.log('[Cache] No cache found');
             return null;
         }
 
@@ -27,15 +25,12 @@ export const getCache = () => {
 
         // Validate cache structure
         if (!cache.versionId || !cache.data) {
-            console.warn('[Cache] Invalid cache structure');
             clearCache();
             return null;
         }
 
-        console.log(`[Cache] Retrieved cache - Version: ${cache.versionId}`);
         return cache;
     } catch (error) {
-        console.error('[Cache] Error reading cache:', error);
         clearCache(); // Clear corrupted cache
         return null;
     }
@@ -50,7 +45,6 @@ export const getCache = () => {
 export const setCache = (versionId, data) => {
     try {
         if (typeof window === 'undefined' || !window.localStorage) {
-            console.warn('[Cache] localStorage not available');
             return false;
         }
 
@@ -64,7 +58,6 @@ export const setCache = (versionId, data) => {
 
         // Check if we're approaching quota (5MB typical limit)
         if (cacheStr.length > 4 * 1024 * 1024) { // 4MB warning threshold
-            console.warn('[Cache] Cache payload is large (>4MB), approaching localStorage limit');
         }
 
         localStorage.setItem(CACHE_KEY, cacheStr);
@@ -74,14 +67,11 @@ export const setCache = (versionId, data) => {
         updateMeta('cacheMisses', 0);
         updateMeta('lastUpdated', Date.now());
 
-        console.log(`[Cache] Stored cache - Version: ${versionId}, Size: ${(cacheStr.length / 1024).toFixed(2)}KB`);
+
         return true;
     } catch (error) {
         if (error.name === 'QuotaExceededError') {
-            console.error('[Cache] localStorage quota exceeded');
             clearCache(); // Try to free up space
-        } else {
-            console.error('[Cache] Error storing cache:', error);
         }
         return false;
     }
@@ -94,10 +84,8 @@ export const clearCache = () => {
     try {
         if (typeof window !== 'undefined' && window.localStorage) {
             localStorage.removeItem(CACHE_KEY);
-            console.log('[Cache] Cache cleared');
         }
     } catch (error) {
-        console.error('[Cache] Error clearing cache:', error);
     }
 };
 
@@ -123,7 +111,6 @@ export const getCacheMeta = () => {
 
         return JSON.parse(metaStr);
     } catch (error) {
-        console.error('[Cache] Error reading metadata:', error);
         return null;
     }
 };
@@ -143,7 +130,6 @@ const updateMeta = (key, value) => {
         meta[key] = value;
         localStorage.setItem(META_KEY, JSON.stringify(meta));
     } catch (error) {
-        console.error('[Cache] Error updating metadata:', error);
     }
 };
 
@@ -154,7 +140,6 @@ export const incrementCacheHits = () => {
     const meta = getCacheMeta() || {};
     updateMeta('cacheHits', (meta.cacheHits || 0) + 1);
     updateMeta('lastChecked', Date.now());
-    console.log(`[Cache] Hit count: ${(meta.cacheHits || 0) + 1}`);
 };
 
 /**
@@ -164,7 +149,6 @@ export const incrementCacheMisses = () => {
     const meta = getCacheMeta() || {};
     updateMeta('cacheMisses', (meta.cacheMisses || 0) + 1);
     updateMeta('lastChecked', Date.now());
-    console.log(`[Cache] Miss count: ${(meta.cacheMisses || 0) + 1}`);
 };
 
 /**

@@ -87,8 +87,9 @@ website/
 
 1. **Home** - Hero section with stats and FAQ
 2. **Events** - Event listings with modal details
-3. **About** - Timeline and testimonials
-4. **Hire** - B2B contact form
+3. **Blog** - Tech insights and articles (`/blog`)
+4. **About** - Timeline, Team, and testimonials
+5. **Hire** - B2B contact form
 
 ## 🎨 Design System
 

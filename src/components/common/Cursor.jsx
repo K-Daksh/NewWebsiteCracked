@@ -61,7 +61,7 @@ const Cursor = () => {
         return () => removeEventListeners();
     }, []);
 
-    const cursorClasses = `fixed top-0 left-0 w-8 h-8 rounded-full pointer-events-none z-[9999] mix-blend-difference transition-transform duration-150 ease-out flex items-center justify-center`;
+    const cursorClasses = `fixed top-0 left-0 w-6 h-6 rounded-full pointer-events-none z-[9999] transition-transform duration-150 ease-out flex items-center justify-center`;
 
     return (
         <div 
@@ -74,7 +74,7 @@ const Cursor = () => {
              }}
         >
              {/* Ring */}
-             <div className={`absolute inset-0 rounded-full border border-white transition-all duration-300 ${linkHovered ? 'scale-150 opacity-100 bg-white/20' : 'scale-100 opacity-50'}`} />
+             <div className={`absolute inset-0 rounded-full border border-white transition-all duration-300 ${linkHovered ? 'scale-105 opacity-100' : 'scale-100 opacity-50'}`} />
              
              {/* Dot */}
              <div className={`w-1.5 h-1.5 bg-white rounded-full transition-all duration-300 ${linkHovered ? 'opacity-0' : 'opacity-100'}`} />

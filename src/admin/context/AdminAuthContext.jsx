@@ -15,31 +15,35 @@ export const useAdminAuth = () => {
 
 export const AdminAuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('adminToken'));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Check for existing session on mount
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('adminToken');
+      const storedToken = localStorage.getItem('adminToken');
       const storedUser = localStorage.getItem('adminUser');
       
-      if (token && storedUser) {
+      if (storedToken && storedUser) {
+        setToken(storedToken);
         try {
+          // Verify token validity
           const response = await fetch(`${API_BASE_URL}/auth/me`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${storedToken}` }
           });
           if (response.ok) {
             const data = await response.json();
             setUser(data.data);
           } else {
-            localStorage.removeItem('adminToken');
-            localStorage.removeItem('adminUser');
+            // Invalid token
+            handleLogout();
           }
         } catch (err) {
-          localStorage.removeItem('adminToken');
-          localStorage.removeItem('adminUser');
+          handleLogout();
         }
+      } else {
+        handleLogout();
       }
       setLoading(false);
     };
@@ -57,10 +61,11 @@ export const AdminAuthProvider = ({ children }) => {
       const data = await response.json();
       
       if (data.success) {
-        const { token, user } = data.data;
-        localStorage.setItem('adminToken', token);
-        localStorage.setItem('adminUser', JSON.stringify(user));
-        setUser(user);
+        const { token: newToken, user: newUser } = data.data;
+        localStorage.setItem('adminToken', newToken);
+        localStorage.setItem('adminUser', JSON.stringify(newUser));
+        setToken(newToken);
+        setUser(newUser);
         return { success: true };
       } else {
         setError(data.error || 'Login failed');
@@ -73,14 +78,20 @@ export const AdminAuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const handleLogout = () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
+    setToken(null);
     setUser(null);
+  };
+
+  const logout = () => {
+    handleLogout();
   };
 
   const value = {
     user,
+    token,
     loading,
     error,
     login,

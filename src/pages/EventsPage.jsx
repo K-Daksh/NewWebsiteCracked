@@ -1,42 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Calendar, ArrowUpRight } from 'lucide-react';
 import { LiquidCard } from '../components/common/LiquidCard';
 import { LiquidButton } from '../components/common/LiquidButton';
+import BrandedSpinner from '../components/common/BrandedSpinner';
 import { useData } from '../context/DataContext';
 
 export const EventsPage = ({ onEventSelect }) => {
     const { events, ongoingEvents, upcomingEvents, pastEvents } = useData();
 
-    const EventCard = ({ evt, isOngoing = false }) => (
-        <motion.div 
-            layoutId={`event-${evt.id}`}
-            onClick={() => onEventSelect(evt)}
-            initial={{ opacity: 0, y: 30 }} 
-            whileInView={{ opacity: 1, y: 0 }} 
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ 
-                type: "spring",
-                stiffness: 300,
-                damping: 35,
-                mass: 1
-            }}
-            className="cursor-pointer h-full"
-            style={{ willChange: "transform" }}
-        >
-            <LiquidCard className={`group aspect-[4/5] h-full`} rounded="rounded-3xl">
-                {/* Image */}
-                <motion.div 
-                    className="absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-105"
-                    style={{ willChange: 'transform' }}
-                >
-                    <img 
-                        src={evt.images[0]} 
-                        alt={evt.title} 
-                        loading="lazy" 
-                        className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300" 
-                    />
-                </motion.div>
+    const EventCard = ({ evt, isOngoing = false }) => {
+        const [imgLoaded, setImgLoaded] = useState(false);
+
+        return (
+            <motion.div 
+                layoutId={`event-${evt.id}`}
+                onClick={() => onEventSelect(evt)}
+                initial={{ opacity: 0, y: 30 }} 
+                whileInView={{ opacity: 1, y: 0 }} 
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ 
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 35,
+                    mass: 1
+                }}
+                className="cursor-pointer h-full"
+                style={{ willChange: "transform" }}
+            >
+                <LiquidCard className={`group aspect-[4/5] h-full bg-black`} rounded="rounded-3xl">
+                    {/* Image Container with Loader */}
+                    <div className="absolute inset-0 bg-black flex items-center justify-center">
+                        {!imgLoaded && (
+                            <div className="absolute inset-0 flex items-center justify-center z-10">
+                                <BrandedSpinner size={30} />
+                            </div>
+                        )}
+                        <motion.div 
+                            className="absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-105"
+                            style={{ willChange: 'transform' }}
+                        >
+                            <img 
+                                src={evt.images[0]} 
+                                alt={evt.title} 
+                                loading="lazy" 
+                                onLoad={() => setImgLoaded(true)}
+                                className={`w-full h-full object-contain transition-opacity duration-500 ${imgLoaded ? 'opacity-90 group-hover:opacity-100' : 'opacity-0'}`}
+                            />
+                        </motion.div>
+                    </div>
                 
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                 
@@ -66,7 +78,8 @@ export const EventsPage = ({ onEventSelect }) => {
                 </div>
             </LiquidCard>
         </motion.div>
-    );
+        );
+    };
 
     return (
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-12 lg:px-16 pt-0 pb-20">

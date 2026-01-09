@@ -164,6 +164,9 @@ The frontend will run on `http://localhost:5173`
 | GET | `/api/testimonials` | List active testimonials |
 | GET | `/api/faqs` | List active FAQs |
 | GET | `/api/milestones` | List all milestones |
+| GET | `/api/team` | List team members |
+| GET | `/api/blog` | List blog posts (paginated) |
+| GET | `/api/blog/:slug` | Get single blog post |
 | GET | `/api/settings` | Get site settings |
 
 ### Protected Endpoints (Auth Required)
@@ -324,7 +327,6 @@ The frontend now:
 This ensures:
 - Data is always fresh from the database
 - Smooth loading animation isn't cut short
-- Graceful fallback to static data if API fails
 
 ## 🌐 Environment Variables
 

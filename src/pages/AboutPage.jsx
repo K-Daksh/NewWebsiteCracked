@@ -5,11 +5,11 @@ import { LiquidCard } from '../components/common/LiquidCard';
 import { LiquidButton } from '../components/common/LiquidButton';
 import { TiltCard } from '../components/common/TiltCard';
 import CurvedLoop from '../components/common/CurvedLoop';
-import { TestimonialSlider } from '../components/sections/TestimonialSlider';
+import TeamCard from '../components/common/TeamCard';
 import { useData } from '../context/DataContext';
 
 export const AboutPage = () => {
-  const { milestones: contextMilestones } = useData();
+  const { milestones: contextMilestones, team = [], settings } = useData();
   
   // Use milestones from context or fallback to static
   const milestones = contextMilestones.length > 0 
@@ -191,15 +191,41 @@ export const AboutPage = () => {
         </div>
       </div>
 
-      <div className="mt-20">
-        <TestimonialSlider />
+      {/* Our Team Section */}
+      <div className="mt-20 lg:mt-28 mb-20 lg:mb-28">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Our Team</h2>
+          <p className="text-white/50 max-w-2xl mx-auto text-lg">Meet the passionate individuals driving innovation and excellence at CRACKED Digital.</p>
+        </div>
+        
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 max-w-7xl mx-auto">
+          {team && team.length > 0 ? (
+            team.map((member) => (
+              <TeamCard
+                key={member.id}
+                name={member.name}
+                role={member.role}
+                image={member.image}
+                linkedin={member.linkedin}
+                email={member.email}
+              />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <p className="text-white/50">No team members added yet.</p>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mt-16 md:mt-24 p-6 md:p-12 rounded-[2rem] bg-gradient-to-br from-white/5 to-transparent border border-white/10 text-center relative overflow-hidden group max-w-4xl mx-auto">
         <div className="absolute inset-0 bg-white/5 blur-3xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
         <h3 className="text-xl md:text-3xl font-bold text-white mb-3 md:mb-4">Join the Core Team</h3>
         <p className="text-white/50 mb-6 md:mb-8 max-w-lg mx-auto text-sm md:text-base">We are always looking for designers, developers, and visionaries. If you have the drive, we have the platform.</p>
-        <LiquidButton className="px-6 py-2.5 md:px-8 md:py-3 text-sm md:text-base text-white font-semibold mx-auto">
+        <LiquidButton 
+          onClick={() => window.open(settings?.whatsappLink || 'https://chat.whatsapp.com', '_blank')}
+          className="px-6 py-2.5 md:px-8 md:py-3 text-sm md:text-base text-white font-semibold mx-auto"
+        >
           Apply Now
         </LiquidButton>
       </div>

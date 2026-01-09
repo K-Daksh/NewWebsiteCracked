@@ -1,4 +1,5 @@
 import { collections } from '../config/firebase.js';
+import { serverCache } from '../utils/serverCache.js';
 
 /**
  * Middleware to automatically bump cache version when data is modified
@@ -26,6 +27,9 @@ export const bumpCacheVersion = (collectionName) => {
 
                     // Update cache version document
                     await collections.settings.doc('cache_version').set(newVersion);
+
+                    // Clear hot cache so next request fetches fresh data
+                    serverCache.clear();
 
                     console.log(`[Cache Version] Bumped to ${newVersion.versionId} - ${newVersion.description}`);
                 } catch (error) {
@@ -57,6 +61,9 @@ export const manualBumpVersion = async (changeType, description, userEmail = 'sy
         };
 
         await collections.settings.doc('cache_version').set(newVersion);
+
+        // Clear hot cache
+        serverCache.clear();
 
         console.log(`[Cache Version] Manual bump to ${newVersion.versionId} - ${description}`);
         return newVersion;

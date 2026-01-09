@@ -60,8 +60,10 @@ export const collections = {
     testimonials: db.collection('testimonials'),
     faqs: db.collection('faqs'),
     milestones: db.collection('milestones'),
+    blogs: db.collection('blogs'),
     settings: db.collection('settings'),
     admins: db.collection('admins'),
+    team: db.collection('team'),
 };
 
 export default admin;

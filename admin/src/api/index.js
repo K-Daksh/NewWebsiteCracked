@@ -81,6 +81,14 @@ export const updateMilestone = (id, data) => api.put(`/milestones/${id}`, data);
 export const deleteMilestone = (id) => api.delete(`/milestones/${id}`);
 export const reorderMilestones = (order) => api.put('/milestones/bulk/reorder', { order });
 
+// Team
+export const getTeam = () => api.get('/team');
+export const getTeamMember = (id) => api.get(`/team/${id}`);
+export const createTeamMember = (data) => api.post('/team', data);
+export const updateTeamMember = (id, data) => api.put(`/team/${id}`, data);
+export const deleteTeamMember = (id) => api.delete(`/team/${id}`);
+export const reorderTeam = (order) => api.put('/team/bulk/reorder', { order });
+
 // Settings
 export const getSettings = () => api.get('/settings');
 export const updateSettings = (data) => api.put('/settings', data);

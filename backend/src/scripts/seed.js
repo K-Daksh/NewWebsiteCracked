@@ -143,6 +143,89 @@ const MILESTONES_DATA = [
     { year: "Now", title: "3+ Strategic Sponsors", description: "Fueling the next generation of hackathons.", order: 3 },
 ];
 
+const TEAM_DATA = [
+    {
+        name: "SARAH CHEN",
+        role: "CO-FOUNDER & CEO",
+        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400",
+        linkedin: "https://linkedin.com",
+        email: "sarah@crackeddigital.com",
+        order: 0
+    },
+    {
+        name: "MICHAEL RODRIGUEZ",
+        role: "CTO",
+        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
+        linkedin: "https://linkedin.com",
+        email: "michael@crackeddigital.com",
+        order: 1
+    },
+    {
+        name: "EMILY JOHNSON",
+        role: "HEAD OF DESIGN",
+        image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=400",
+        linkedin: "https://linkedin.com",
+        email: "emily@crackeddigital.com",
+        order: 2
+    },
+    {
+        name: "DAVID PARK",
+        role: "LEAD DEVELOPER",
+        image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400",
+        linkedin: "https://linkedin.com",
+        email: "david@crackeddigital.com",
+        order: 3
+    },
+    {
+        name: "PRIYA SHARMA",
+        role: "MARKETING DIRECTOR",
+        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
+        linkedin: "https://linkedin.com",
+        email: "priya@crackeddigital.com",
+        order: 4
+    },
+    {
+        name: "JAMES WILSON",
+        role: "PRODUCT MANAGER",
+        image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400",
+        linkedin: "https://linkedin.com",
+        email: "james@crackeddigital.com",
+        order: 5
+    },
+    {
+        name: "SOPHIA MARTINEZ",
+        role: "DATA SCIENTIST",
+        image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400",
+        linkedin: "https://linkedin.com",
+        email: "sophia@crackeddigital.com",
+        order: 6
+    },
+    {
+        name: "ALEX THOMPSON",
+        role: "COMMUNITY LEAD",
+        image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400",
+        linkedin: "https://linkedin.com",
+        email: "alex@crackeddigital.com",
+        order: 7
+    },
+    {
+        name: "OLIVIA BROWN",
+        role: "CONTENT STRATEGIST",
+        image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
+        linkedin: "https://linkedin.com",
+        email: "olivia@crackeddigital.com",
+        order: 8
+    },
+    {
+        name: "ETHAN DAVIS",
+        role: "OPERATIONS MANAGER",
+        image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400",
+        linkedin: "https://linkedin.com",
+        email: "ethan@crackeddigital.com",
+        order: 9
+    }
+];
+
 const SETTINGS_DATA = {
     heroTagline: "Central India's Premier Community",
     heroTitle1: "Cracked",
@@ -276,6 +359,22 @@ async function seed() {
             console.log('   ✅ Settings created');
         } else {
             console.log('   ⚠️  Settings already exist, skipping...');
+        }
+
+        // 8. Seed Team Members
+        console.log('\n👥 Seeding team members...');
+        const existingTeam = await collections.team.limit(1).get();
+        if (existingTeam.empty) {
+            for (const member of TEAM_DATA) {
+                await collections.team.add({
+                    ...member,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                });
+            }
+            console.log(`   ✅ Added ${TEAM_DATA.length} team members`);
+        } else {
+            console.log('   ⚠️  Team members already exist, skipping...');
         }
 
         console.log('\n═══════════════════════════════════════════════════');

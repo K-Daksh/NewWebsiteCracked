@@ -1,14 +1,22 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import compression from 'compression';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import xss from 'xss-clean';
+import hpp from 'hpp';
 
 // Import routes
 import authRoutes from './routes/auth.js';
 import eventsRoutes from './routes/events.js';
-import statsRoutes from './routes/stats.js';
+import teamRoutes from './routes/team.js';
 import testimonialsRoutes from './routes/testimonials.js';
 import faqsRoutes from './routes/faqs.js';
+import statsRoutes from './routes/stats.js';
 import milestonesRoutes from './routes/milestones.js';
+import blogRoutes from './routes/blog.js';
+import hiringRoutes from './routes/hiring.js';
 import settingsRoutes from './routes/settings.js';
 import uploadRoutes from './routes/upload.js';
 import publicRoutes from './routes/public.js';
@@ -16,6 +24,7 @@ import versionRoutes from './routes/version.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
 
 // CORS configuration
 const corsOptions = {
@@ -31,10 +40,37 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-console.log(`Backend module loaded. Environment: ${process.env.NODE_ENV}`);
+// console.log(`Backend module loaded. Environment: ${process.env.NODE_ENV}`);
 
 // Middleware
+app.enable('trust proxy'); // Required for Vercel/proxies
+
+// Security Middleware
+app.use(helmet());
+app.use(xss());
+app.use(hpp());
+
+// Rate Limiting
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+const strictLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20, // Limit each IP to 20 requests per windowMs
+    message: 'Too many attempts, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 app.use(cors(corsOptions));
+app.use(compression());
+app.use('/api/', globalLimiter); // Apply global limit to all API routes
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -56,6 +92,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // API Routes
+app.use('/api/auth/login', strictLimiter); // Strict limit for login (Brute-force protection)
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/stats', statsRoutes);
@@ -66,6 +103,9 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/version', versionRoutes);
+app.use('/api/team', teamRoutes);
+app.use('/api/blog', blogRoutes);
+app.use('/api/hiring', strictLimiter, hiringRoutes); // Strict limit for hiring form (Spam protection)
 
 // 404 handler
 app.use('/api/*', (req, res) => {
@@ -125,6 +165,7 @@ if (!process.env.VERCEL) {
 ║   • CRUD /api/testimonials    - Testimonials              ║
 ║   • CRUD /api/faqs            - FAQs                      ║
 ║   • CRUD /api/milestones      - Milestones                ║
+║   • CRUD /api/team            - Team management           ║
 ║   • PUT  /api/settings        - Site settings             ║
 ║   • POST /api/upload          - Image upload              ║
 ║                                                           ║

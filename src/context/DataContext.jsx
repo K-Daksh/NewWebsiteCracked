@@ -5,7 +5,7 @@ const DataContext = createContext(null);
 
 // API Base URL - defaults to localhost:5000 for development, relative /api for production
 
-console.log("URL",import.meta.env.VITE_API_URL);
+
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 
   (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api');
@@ -25,6 +25,7 @@ export const DataProvider = ({ children }) => {
     testimonials: [],
     faqs: [],
     milestones: [],
+    team: [],
     settings: {},
   });
   const [loading, setLoading] = useState(true);
@@ -38,13 +39,17 @@ export const DataProvider = ({ children }) => {
       if (!forceRefresh) {
         const cached = getCache();
         if (cached) {
-          console.log('[DataContext] Loaded data from cache');
-          setData(cached.data);
-          setLoading(false); // Process immediately with cached data
+
           
-          // Background validation: Check if version changed
-          checkVersionAndRevalidate(cached.versionId);
-          return;
+          // Check version BEFORE using cached data
+          const versionValid = await validateCacheVersion(cached.versionId);
+          
+          if (versionValid) {
+            setData(cached.data);
+            setLoading(false);
+            return;
+          } else {
+          }
         }
       }
       
@@ -53,7 +58,6 @@ export const DataProvider = ({ children }) => {
       await fetchFreshData();
       
     } catch (err) {
-      console.error('[DataContext] Error in data flow:', err);
       setError(err.message);
       handleFallback();
     } finally {
@@ -61,29 +65,29 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Helper to check version and revalidate if needed
-  const checkVersionAndRevalidate = async (currentVersionId) => {
+
+  // Helper to validate if cached version matches server
+  const validateCacheVersion = async (cachedVersionId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/version`);
+      const response = await fetch(`${API_BASE_URL}/version`, {
+        cache: 'no-cache'  // Bypass browser cache to get latest version
+      });
       if (response.ok) {
         const { versionId } = await response.json();
-        
-        if (versionId && versionId !== currentVersionId) {
-          console.log(`[DataContext] Version mismatch (Cache: ${currentVersionId}, Server: ${versionId}). Fetching fresh data...`);
-          await fetchFreshData();
-        } else {
-          console.log('[DataContext] Cache version matches server. No update needed.');
-        }
+        return versionId === cachedVersionId;
       }
+      return false;
     } catch (err) {
-      console.warn('[DataContext] Background version check failed:', err);
+      return false; // Assume stale on error
     }
   };
 
   // Helper to fetch fresh data from API
   const fetchFreshData = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/public/all`);
+      const response = await fetch(`${API_BASE_URL}/public/all`, {
+        cache: 'no-cache'  // Bypass browser cache to get latest data
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -98,6 +102,7 @@ export const DataProvider = ({ children }) => {
           testimonials: result.data.testimonials || [],
           faqs: result.data.faqs || [],
           milestones: result.data.milestones || [],
+          team: result.data.team || [],
           settings: result.data.settings || {},
         };
         
@@ -115,26 +120,12 @@ export const DataProvider = ({ children }) => {
     }
   };
 
+  /* Fallback logic removed as per cleanup requirements */
   const handleFallback = async () => {
-    // Fallback to static data if API fails (for development)
-    try {
-      const { EVENTS_DATA, STATS_DATA, TESTIMONIALS_DATA, FAQ_DATA, MILESTONES_DATA } = await import('../data/constants.js');
-      setData({
-        events: EVENTS_DATA || [],
-        stats: STATS_DATA || [],
-        testimonials: TESTIMONIALS_DATA || [],
-        faqs: FAQ_DATA || [],
-        milestones: MILESTONES_DATA || [],
-        settings: {},
-      });
-      console.log('[DataContext] Loaded fallback static data');
-    } catch (fallbackErr) {
-      console.error('[DataContext] Fallback data also failed:', fallbackErr);
-    }
+    setError('Failed to load content. Please check your connection.');
   };
 
   useEffect(() => {
-    console.log('[DataContext] Using API URL:', API_BASE_URL);
     fetchAllData();
   }, []);
 

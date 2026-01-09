@@ -71,6 +71,21 @@ export const getMilestones = () => apiCall('/milestones');
 export const createMilestone = (data) => apiCall('/milestones', { method: 'POST', body: JSON.stringify(data) });
 export const updateMilestone = (id, data) => apiCall(`/milestones/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 export const deleteMilestone = (id) => apiCall(`/milestones/${id}`, { method: 'DELETE' });
+export const reorderMilestones = (order) => apiCall('/milestones/bulk/reorder', { method: 'PUT', body: JSON.stringify({ order }) });
+
+// Blog
+export const getBlogs = (page = 1, limit = 100) => apiCall(`/blog?page=${page}&limit=${limit}`);
+export const createBlog = (data) => apiCall('/blog', { method: 'POST', body: JSON.stringify(data) });
+export const updateBlog = (id, data) => apiCall(`/blog/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+export const deleteBlog = (id) => apiCall(`/blog/${id}`, { method: 'DELETE' });
+
+// Team
+export const getTeam = () => apiCall('/team');
+export const getTeamMember = (id) => apiCall(`/team/${id}`);
+export const createTeamMember = (data) => apiCall('/team', { method: 'POST', body: JSON.stringify(data) });
+export const updateTeamMember = (id, data) => apiCall(`/team/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+export const deleteTeamMember = (id) => apiCall(`/team/${id}`, { method: 'DELETE' });
+export const reorderTeam = (order) => apiCall('/team/bulk/reorder', { method: 'PUT', body: JSON.stringify({ order }) });
 
 // Settings
 export const getSettings = () => apiCall('/settings');

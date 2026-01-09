@@ -5,11 +5,14 @@ import {
   Milestone as MilestoneIcon, Settings, Zap, LogOut, User,
   ArrowLeft, Plus, Edit2, Trash2, X, Save, Eye, EyeOff, TrendingUp,
   Users, Globe, Star, Award, Target, Trophy, ExternalLink,
-  Upload, Image as ImageIcon, ChevronUp, ChevronDown
+  Upload, Image as ImageIcon, ChevronUp, ChevronDown, GripVertical, Mail, Linkedin,
+  BookOpen, Briefcase
 } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import * as api from '../api/index.js';
-
+import TeamManager from './TeamManager';
+import BlogManager from './BlogManager'; // Consolidated imports
+import HiringRequests from './HiringRequests';
 // Spinner Component
 const Spinner = ({ size = 'md' }) => {
   const sizeClasses = { sm: 'w-4 h-4', md: 'w-6 h-6', lg: 'w-8 h-8' };
@@ -62,15 +65,18 @@ const formatDate = (dateStr) => {
   } catch { return dateStr; }
 };
 
-// Navigation items (Gallery removed)
+// Navigation items
 const navItems = [
-  { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { id: 'events', icon: Calendar, label: 'Events' },
-  { id: 'stats', icon: BarChart3, label: 'Stats' },
-  { id: 'testimonials', icon: MessageSquare, label: 'Testimonials' },
-  { id: 'faqs', icon: HelpCircle, label: 'FAQs' },
-  { id: 'milestones', icon: MilestoneIcon, label: 'Milestones' },
-  { id: 'settings', icon: Settings, label: 'Settings' },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'events', label: 'Events', icon: Calendar },
+  { id: 'stats', label: 'Impact Stats', icon: BarChart3 },
+  { id: 'testimonials', label: 'Testimonials', icon: MessageSquare },
+  { id: 'faqs', label: 'FAQs', icon: HelpCircle },
+  { id: 'milestones', label: 'Milestones', icon: MilestoneIcon },
+  { id: 'team', label: 'Team', icon: Users },
+  { id: 'blog', label: 'Blog', icon: BookOpen },
+  { id: 'hiring', label: 'Hiring Requests', icon: Briefcase },
+  { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
 // ============ DASHBOARD ============
@@ -267,7 +273,7 @@ const EventsManager = () => {
     // Try to delete from bucket if it's our URL
     if (url.includes('storage.googleapis.com')) {
       const filename = url.split('/').pop();
-      try { await api.deleteImage(filename); } catch (e) { console.log('Could not delete from bucket'); }
+      try { await api.deleteImage(filename); } catch (e) { }
     }
     setFormData({ ...formData, images: formData.images.filter((_, i) => i !== index) });
   };
@@ -774,6 +780,8 @@ const milestoneFields = [
   { key: 'description', label: 'Description', type: 'textarea', required: true, display: true, className: 'text-white/50 text-sm mt-1' },
 ];
 
+// TeamManager is now imported from ./TeamManager
+
 // ============ SETTINGS MANAGER ============
 const SettingsManager = () => {
   const [settings, setSettings] = useState({});
@@ -840,6 +848,9 @@ export const AdminDashboard = ({ onBack }) => {
       case 'testimonials': return <SimpleCrudManager type="testimonials" fields={testimonialFields} fetchFn={api.getTestimonials} createFn={api.createTestimonial} updateFn={api.updateTestimonial} deleteFn={api.deleteTestimonial} toggleFn={api.toggleTestimonial} />;
       case 'faqs': return <FaqsManager />;
       case 'milestones': return <SimpleCrudManager type="milestones" fields={milestoneFields} fetchFn={api.getMilestones} createFn={api.createMilestone} updateFn={api.updateMilestone} deleteFn={api.deleteMilestone} />;
+      case 'team': return <TeamManager />;
+      case 'blog': return <BlogManager />;
+      case 'hiring': return <HiringRequests />;
       case 'settings': return <SettingsManager />;
       default: return <DashboardPage setActiveTab={setActiveTab} />;
     }

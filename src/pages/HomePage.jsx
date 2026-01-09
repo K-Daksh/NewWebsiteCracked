@@ -6,6 +6,7 @@ import { LiquidButton } from '../components/common/LiquidButton';
 import { TiltCard } from '../components/common/TiltCard';
 import CountUp from '../components/common/CountUp';
 import ShinyText from '../components/common/ShinyText';
+import { TestimonialSlider } from '../components/sections/TestimonialSlider';
 import { useData } from '../context/DataContext';
 
 // Icon mapping for dynamic stats
@@ -59,7 +60,7 @@ const FALLBACK_FAQS = [
 ];
 
 export const HomePage = ({ onEventSelect }) => {
-  const { stats: contextStats, faqs: contextFaqs } = useData();
+  const { stats: contextStats, faqs: contextFaqs, settings } = useData();
   
   // Map stats from context with proper icons
   const stats = contextStats.length > 0 
@@ -123,7 +124,10 @@ export const HomePage = ({ onEventSelect }) => {
           </motion.p>
           
           <div className="flex gap-3 sm:gap-4 justify-center lg:justify-start pt-2">
-            <LiquidButton className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base text-white font-semibold">
+            <LiquidButton 
+                onClick={() => window.open(settings?.whatsappLink || 'https://chat.whatsapp.com/your-link', '_blank')}
+                className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base text-white font-semibold"
+            >
                 Join Now <ArrowRight className="ml-1.5 sm:ml-2 w-3.5 sm:w-4 h-3.5 sm:h-4" />
             </LiquidButton>
           </div>
@@ -202,6 +206,11 @@ export const HomePage = ({ onEventSelect }) => {
             </motion.div>
           ))}
         </div>
+      </div>
+
+      {/* Testimonials Section */}
+      <div className="mb-20">
+        <TestimonialSlider />
       </div>
 
       {/* FAQ Section (Replaces Events) */}

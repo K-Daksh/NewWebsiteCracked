@@ -13,10 +13,10 @@ const router = Router();
 router.post('/login', asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
         return apiResponse(res, {
             success: false,
-            error: 'Email and password are required',
+            error: 'Email and password are required and must be strings',
             statusCode: 400,
         });
     }
